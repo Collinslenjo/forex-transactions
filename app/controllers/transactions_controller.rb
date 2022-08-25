@@ -32,17 +32,22 @@ class TransactionsController < ApplicationController
     print("conversion_rate: #{conversion_rate} \n")
     output_amount = input_amount * conversion_rate
 
-    transaction = Transaction.create(
-        customer_id: customer.id,
-        reference: SecureRandom.uuid,
-        input_amount: input_amount,
-        output_amount: output_amount,
-        transaction_date: DateTime.now,
-        input_currency: input_currency,
-        output_currency: output_currency,
-        conversion_rates: conversion_rate)
 
-    render json: transaction
+    transaction = Transaction.new()
+    transaction.customer_id = customer.id
+    transaction.reference = SecureRandom.uuid
+    transaction.input_amount = input_amount
+    transaction.output_amount = output_amount
+    transaction.transaction_date = DateTime.now
+    transaction.input_currency = input_currency
+    transaction.output_currency = output_currency
+    transaction.conversion_rates = conversion_rate
+    if transaction.save()
+      render json: transaction, status: 200
+    else
+      render json: {:error => transaction.errors}, status: 500
+    end
+
   end
 
   def show
@@ -53,4 +58,17 @@ class TransactionsController < ApplicationController
     end
     render json: transaction
   end
+#   private
+#   def transaction_params
+#     params.require(:transaction).permit(
+#       :customer_id
+#       :reference
+#       :input_amount
+#       :output_amount
+#       :transaction_date
+#       :input_currency
+#       :output_currency
+#       :conversion_rates
+#     )
+#   end
 end
